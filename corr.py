@@ -44,6 +44,7 @@ all_pred_prob = []
 all_true_react = []
 save_pcc = []
 
+############### for loop over all 1088 RNA sequences to evaluate correlation between reactivities and predicted probabilities ##############
 for id in ids[0:]:
 
 ###### read sequence and reactivity of query sequence ##############
