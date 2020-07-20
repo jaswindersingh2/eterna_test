@@ -12,6 +12,20 @@ args = parser.parse_args()
 with open('ids') as f:
     ids = f.read().splitlines()
 
+###### read all the reactivities and concatenate together to find out reactivity values above 95% percentile ##############
+all_reactivites = []
+for id in ids[0:]:
+	with open('1088_reactivity/' + str(id)) as f:
+		temp = pd.read_csv(f, comment='#', header=None, skiprows=[0]).values
+
+	reactivity = [float(i) for i in temp[1][0].split(' ') if i != ''] # make list of reactivity values in float
+	all_reactivites.append(reactivity)
+
+	assert len(reactivity) == 79     # check no. of reactivity values. should be 79
+
+all_reactivities_concat = np.concatenate([i for i in all_reactivites])   # concatenate all the values and make 1D array
+thres_remove_above_95 = np.percentile(all_reactivities_concat, 95)       # evaluate theshold for reactivities values above and below the 95% cut-off
+
 ######## --------------------- parse base-pair probability RNAfold output ---------------------------- #########################
 def RNAfold_bp_prob(id, seq):
     with open('RNAfold_prob/' + str(id) + '.prob') as f:
@@ -44,20 +58,20 @@ for id in ids[0:]:
 
 ########### read either SPOT-RNA or RNAfold probabilites #######################
 	if args.predictor == 'RNAfold':
-		y_pred = RNAfold_bp_prob(id, seq)                                      # load RNAfold bps probabilties   107 x 107
+		y_pred = RNAfold_bp_prob(id, seq)                                      # load RNAfold bps probabilties   107 x 107  2D array
 	else:
-		y_pred = np.loadtxt('SPOT-RNA_prob/' + id + '.prob', delimiter='\t')    # load SPOT-RNA bps probabilties  107 x 107
+		y_pred = np.loadtxt('SPOT-RNA_prob/' + id + '.prob', delimiter='\t')    # load SPOT-RNA bps probabilties  107 x 107  2D array
 
 
 	prob = np.sum(y_pred[0:79,0:79] + np.transpose(y_pred[0:79,0:79]), axis=0)  # convert upper triangular matrix to symmetric metric of size 79 x 79 and sum across one axis
 
-	npair_prob = [1-i for i in prob]         # convert pair prob. to non-pair prob
+	npair_prob = [1-i for i in prob]         # convert pair probability to non-pair probability
 
 
-########## ignore index of reactivity values less than 1e-5 (given in readme of eternabench) ###############
+########## ignore index of reactivity values less than 1e-5 and above 95% ###############
 	ignore_index = []
 	for i,I in enumerate(reactivity):
-		if I < 0.00001:
+		if I < 0.00001 or I > thres_remove_above_95:
 			ignore_index.append(i)	
 	npair_prob = [I for i,I in enumerate(npair_prob) if i not in ignore_index]
 	reactivity = [I for i,I in enumerate(reactivity) if i not in ignore_index]
@@ -74,6 +88,7 @@ for id in ids[0:]:
 ####### concatenate all 1-dimensional un-paired prob. and reactivtites ###########
 all_probabilities = np.concatenate([i for i in all_pred_prob])
 all_reactivities = np.concatenate([i for i in all_true_react])
+#print(len(all_probabilities), len(all_reactivities))
 
 ###### single pcc value ###########
 pcc_all = pcc = np.corrcoef(np.stack((np.array(all_probabilities), np.array(all_reactivities)), axis=0))[0][1]
