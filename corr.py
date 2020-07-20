@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 import pickle as pkl
 import argparse
+from scipy import stats
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--predictor', default='SPOT-RNA', type=str, help='provide either SPOT-RNA or RNAfold', metavar='')
@@ -35,7 +36,7 @@ def RNAfold_bp_prob(id, seq):
     for i in temp[:,0]:
         a = i.split(' ')
         #print(a)
-        output_pred[int(a[0]) - 1, int(a[1]) - 1] = float(a[2])
+        output_pred[int(a[0]) - 1, int(a[1]) - 1] = float(a[2])**2
     #print(output_pred)
     return output_pred
 
@@ -89,12 +90,15 @@ for id in ids[0:]:
 all_probabilities = np.concatenate([i for i in all_pred_prob])
 all_reactivities = np.concatenate([i for i in all_true_react])
 #print(len(all_probabilities), len(all_reactivities))
+#print(thres_remove_above_95)
 
 ###### single pcc value ###########
 pcc_all = np.corrcoef(np.stack((np.array(all_probabilities), np.array(all_reactivities)), axis=0))[0][1]
+scc_all = stats.spearmanr(all_probabilities, all_reactivities)
 
 print('\n'+args.predictor)
-print('mean pcc from individual RNA pcc = {:.3f}'.format(np.nanmean(save_pcc)))
-print('single pcc by concatenating all nts = {:.3f}'.format(pcc_all)) 
+print('mean Pearson Correlation Coefficent from individual RNA pcc = {:.3f}'.format(np.nanmean(save_pcc)))
+print('single Pearson Correlation Coefficent by concatenating all nts = {:.3f}'.format(pcc_all)) 
+print('single Spearman Correlation Coefficent by concatenating all nts = {:.3f}'.format(scc_all[0])) 
 print()
 

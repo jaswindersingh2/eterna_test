@@ -15,8 +15,9 @@ Results:
 $ python3 corr.py  --predictor SPOT-RNA
 
 SPOT-RNA
-mean pcc from individual RNA pcc = 0.379
-single pcc by concatenating all nts = 0.410
+mean Pearson Correlation Coefficent from individual RNA pcc = 0.379
+single Pearson Correlation Coefficent by concatenating all nts = 0.427
+single Spearman Correlation Coefficent by concatenating all nts = 0.419
 
 ```
 
@@ -24,8 +25,9 @@ single pcc by concatenating all nts = 0.410
 $ python3 corr.py  --predictor RNAfold
 
 RNAfold
-mean pcc from individual RNA pcc = 0.490
-single pcc by concatenating all nts = 0.391
+mean Pearson Correlation Coefficent from individual RNA pcc = 0.498
+single Pearson Correlation Coefficent by concatenating all nts = 0.485
+single Spearman Correlation Coefficent by concatenating all nts = 0.340
 
 ```
 
