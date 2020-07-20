@@ -17,9 +17,8 @@ Need to install numpy, pandas, argparse, and scipy using either pip or conda.
 $ python3 corr.py  --predictor SPOT-RNA
 
 SPOT-RNA
-mean Pearson Correlation Coefficent from individual RNA pcc = 0.548
-single Pearson Correlation Coefficent by concatenating all nts = 0.560
-single Spearman Correlation Coefficent by concatenating all nts = 0.584
+mean Pearson Correlation Coefficent = 0.554
+mean Spearman Correlation Coefficent = 0.532
 
 ```
 
@@ -27,9 +26,8 @@ single Spearman Correlation Coefficent by concatenating all nts = 0.584
 $ python3 corr.py  --predictor RNAfold
 
 RNAfold
-mean Pearson Correlation Coefficent from individual RNA pcc = 0.645
-single Pearson Correlation Coefficent by concatenating all nts = 0.610
-single Spearman Correlation Coefficent by concatenating all nts = 0.415
+mean Pearson Correlation Coefficent = 0.648
+mean Spearman Correlation Coefficent = 0.478
 
 ```
 Contact

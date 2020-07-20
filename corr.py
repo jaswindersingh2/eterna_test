@@ -39,9 +39,8 @@ def RNAfold_bp_prob(id, seq):
 	#print(output_pred)
 	return output_pred
 
-all_pred_prob = []
-all_true_react = []
 save_pcc = []
+save_scc = []
 
 ############### for loop over all 1088 RNA sequences to evaluate correlation between reactivities and predicted probabilities ##############
 for id in ids[0:]:
@@ -64,9 +63,8 @@ for id in ids[0:]:
 		y_pred = np.loadtxt('SPOT-RNA_prob/' + id + '.prob', delimiter='\t')    # load SPOT-RNA bps probabilties  107 x 107  2D array
 
 
-	prob = np.sum(y_pred + np.transpose(y_pred), axis=0)  # convert upper triangular matrix to symmetric metric of size 107 x 107 and sum across one axis
-
-	npair_prob = [1-i for i in prob[0:79]]         # convert pair probability to non-pair probability
+	prob = np.clip(np.sum(y_pred + np.transpose(y_pred), axis=0), 0, 1)  # convert upper triangular matrix to symmetric metric of size 107 x 107 and sum across one axis
+	npair_prob = [1-i for i in prob[0:79]]         # convert pair probability to non-pair probability (1 x 79) list
 
 
 ########## ignore index of reactivity values less than 1e-5 and above 95% ###############
@@ -77,28 +75,15 @@ for id in ids[0:]:
 	npair_prob = [I for i,I in enumerate(npair_prob) if i not in ignore_index]
 	reactivity = [I for i,I in enumerate(reactivity) if i not in ignore_index]
 
-######## append non-pair prob and reactivity to calculate single pcc value  ##########
-	all_pred_prob.append(npair_prob)
-	all_true_react.append(reactivity)
-
-#########  calculate pcc of individual rna  ################
+#########  calculate pcc and scc of individual rna and save into lists  ################
 	pcc = np.ma.corrcoef(np.stack((np.array(npair_prob), np.array(reactivity)), axis=0))[0][1]
+	scc = stats.spearmanr(npair_prob, reactivity)
 	save_pcc.append(pcc)
-	
+	save_scc.append(scc[0])	
 
-####### concatenate all 1-dimensional un-paired prob. and reactivtites ###########
-all_probabilities = np.concatenate([i for i in all_pred_prob])
-all_reactivities = np.concatenate([i for i in all_true_react])
-#print(len(all_probabilities), len(all_reactivities))
-#print(thres_remove_above_95)
-
-###### single pcc value ###########
-pcc_all = np.ma.corrcoef(np.stack((np.array(all_probabilities), np.array(all_reactivities)), axis=0))[0][1]
-scc_all = stats.spearmanr(all_probabilities, all_reactivities)
 
 print('\n'+args.predictor)
-print('mean Pearson Correlation Coefficent from individual RNA pcc = {:.3f}'.format(np.nanmean(save_pcc)))
-print('single Pearson Correlation Coefficent by concatenating all nts = {:.3f}'.format(pcc_all)) 
-print('single Spearman Correlation Coefficent by concatenating all nts = {:.3f}'.format(scc_all[0])) 
+print('mean Pearson Correlation Coefficent = {:.3f}'.format(np.nanmean(save_pcc)))
+print('mean Spearman Correlation Coefficent = {:.3f}'.format(np.nanmean(save_scc)))
 print()
 
