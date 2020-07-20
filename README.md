@@ -28,3 +28,7 @@ mean pcc from individual RNA pcc = 0.496
 single pcc by concatenating all nts = 0.416
 
 ```
+
+Contact
+====
+jaswinder.singh3@griffithuni.edu.au, yaoqi.zhou@griffith.edu.au
