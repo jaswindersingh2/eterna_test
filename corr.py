@@ -91,7 +91,7 @@ all_reactivities = np.concatenate([i for i in all_true_react])
 #print(len(all_probabilities), len(all_reactivities))
 
 ###### single pcc value ###########
-pcc_all = pcc = np.corrcoef(np.stack((np.array(all_probabilities), np.array(all_reactivities)), axis=0))[0][1]
+pcc_all = np.corrcoef(np.stack((np.array(all_probabilities), np.array(all_reactivities)), axis=0))[0][1]
 
 print('\n'+args.predictor)
 print('mean pcc from individual RNA pcc = {:.3f}'.format(np.nanmean(save_pcc)))
