@@ -1,6 +1,11 @@
 import numpy as np
 import pandas as pd
 import pickle as pkl
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--predictor', default='SPOT-RNA', type=str, help='provide either SPOT-RNA or RNAfold', metavar='')
+args = parser.parse_args()
 
 
 #########  read file consists of name of each rna file ################
@@ -37,9 +42,11 @@ for id in ids[0:]:
 	assert len(reactivity) == 79     # check no. of reactivity values. should be 79
 
 
-########### read either SPOT-RNA of RNAfold probabilites. uncomment either 1 #######################
-	y_pred = np.loadtxt('SPOT-RNA_prob/' + id + '.prob', delimiter='\t')    # load SPOT-RNA bps probabilties  107 x 107
-	#y_pred = RNAfold_bp_prob(id, seq)                                      # load RNAfold bps probabilties   107 x 107
+########### read either SPOT-RNA or RNAfold probabilites #######################
+	if args.predictor == 'RNAfold':
+		y_pred = RNAfold_bp_prob(id, seq)                                      # load RNAfold bps probabilties   107 x 107
+	else:
+		y_pred = np.loadtxt('SPOT-RNA_prob/' + id + '.prob', delimiter='\t')    # load SPOT-RNA bps probabilties  107 x 107
 
 
 	prob = np.sum(y_pred[0:79,0:79] + np.transpose(y_pred[0:79,0:79]), axis=0)  # convert upper triangular matrix to symmetric metric of size 79 x 79 and sum across one axis
@@ -65,12 +72,14 @@ for id in ids[0:]:
 	
 
 ####### concatenate all 1-dimensional un-paired prob. and reactivtites ###########
-temp2 = np.concatenate([i for i in all_pred_prob])
-temp3 = np.concatenate([i for i in all_true_react])
+all_probabilities = np.concatenate([i for i in all_pred_prob])
+all_reactivities = np.concatenate([i for i in all_true_react])
 
 ###### single pcc value ###########
-pcc_all = pcc = np.corrcoef(np.stack((np.array(temp2), np.array(temp3)), axis=0))[0][1]
+pcc_all = pcc = np.corrcoef(np.stack((np.array(all_probabilities), np.array(all_reactivities)), axis=0))[0][1]
 
-print('mean pcc from individual RNA pcc = ', np.nanmean(save_pcc))
-print('single pcc by concatenating all nts = ', pcc_all) 
+print('\n'+args.predictor)
+print('mean pcc from individual RNA pcc = {:.3f}'.format(np.nanmean(save_pcc)))
+print('single pcc by concatenating all nts = {:.3f}'.format(pcc_all)) 
+print()
 
