@@ -11,7 +11,7 @@ args = parser.parse_args()
 with open('ids') as f:
     ids = f.read().splitlines()
 
-###### read all the reactivities and concatenate together to find out reactivity values above 95% percentile ##############
+###### read all the reactivities and concatenate together to find out reactivity values threshold for 95% percentile ##############
 all_reactivites = []
 for id in ids[0:1]:
 	with open('1088_reactivity/' + str(id)) as f:
@@ -23,7 +23,7 @@ for id in ids[0:1]:
 	assert len(reactivity) == 79     # check no. of reactivity values. should be 79
 
 all_reactivities_concat = np.concatenate([i for i in all_reactivites])   # concatenate all the values and make 1D array
-thres_remove_above_95 = np.percentile(all_reactivities_concat, 95)       # evaluate theshold for reactivities values above and below the 95% cut-off
+thres_remove_above_95 = np.percentile(all_reactivities_concat, 95)       # evaluate theshold for reactivities values for 95% cut-off
 
 ######## --------------------- parse base-pair probability RNAfold output ---------------------------- #########################
 def RNAfold_bp_prob(id, seq):
@@ -39,10 +39,11 @@ def RNAfold_bp_prob(id, seq):
 	#print(output_pred)
 	return output_pred
 
+# initialize two lists to save PCC and SCC
 save_pcc = []
 save_scc = []
 
-############### for loop over all 1088 RNA sequences to evaluate correlation between reactivities and predicted probabilities ##############
+############### 'for' loop over all 1088 RNA sequences to evaluate correlation between reactivities and predicted non-pair probabilities ##############
 for id in ids[0:]:
 
 ###### read sequence and reactivity of query sequence ##############
@@ -62,8 +63,7 @@ for id in ids[0:]:
 	else:
 		y_pred = np.loadtxt('SPOT-RNA_prob/' + id + '.prob', delimiter='\t')    # load SPOT-RNA bps probabilties  107 x 107  2D array
 
-
-	prob = np.clip(np.sum(y_pred + np.transpose(y_pred), axis=0), 0, 1)  # convert upper triangular matrix to symmetric metric of size 107 x 107 and sum across one axis
+	prob = np.clip(np.sum(y_pred + np.transpose(y_pred), axis=0), 0, 1)  # convert upper triangular matrix to symmetric metric of size 107 x 107 and sum across one axis. Also clip b/w 0 and 1.
 	npair_prob = [1-i for i in prob[0:79]]         # convert pair probability to non-pair probability (1 x 79) list
 
 
@@ -71,7 +71,7 @@ for id in ids[0:]:
 	ignore_index = []
 	for i,I in enumerate(reactivity):
 		if I < 0.00001 or I > thres_remove_above_95:
-			ignore_index.append(i)	
+			ignore_index.append(i)
 	npair_prob = [I for i,I in enumerate(npair_prob) if i not in ignore_index]
 	reactivity = [I for i,I in enumerate(reactivity) if i not in ignore_index]
 
@@ -83,7 +83,7 @@ for id in ids[0:]:
 
 
 print('\n'+args.predictor)
-print('mean Pearson Correlation Coefficent = {:.3f}'.format(np.nanmean(save_pcc)))
-print('mean Spearman Correlation Coefficent = {:.3f}'.format(np.nanmean(save_scc)))
+print('mean Pearson Correlation Coefficent = {:.3f}'.format(np.nanmean(save_pcc)))   # print mean pcc by ignoring nan values
+print('mean Spearman Correlation Coefficent = {:.3f}'.format(np.nanmean(save_scc)))  # print mean scc by ignoring nan values
 print()
 
