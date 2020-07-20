@@ -5,8 +5,8 @@ from scipy import stats
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--predictor', default='SPOT-RNA', type=str, help='provide either SPOT-RNA or RNAfold', metavar='')
+parser.add_argument('--truncation', default=1, type=int, help='use predicted probability from truncated sequence 1-79 for SPOT-RNA or RNAfold\n', metavar='')
 args = parser.parse_args()
-
 
 #########  read file consists of name of each rna file ################
 with open('ids') as f:
@@ -27,17 +27,22 @@ all_reactivities_concat = np.concatenate([i for i in all_reactivites])   # conca
 thres_remove_above_95 = np.percentile(all_reactivities_concat, 95)       # evaluate theshold for reactivities values above and below the 95% cut-off
 
 ######## --------------------- parse base-pair probability RNAfold output ---------------------------- #########################
-def RNAfold_bp_prob(id, seq):
-    with open('RNAfold_prob/' + str(id) + '.prob') as f:
-        temp = pd.read_csv(f, comment='#', header=None).values
-    #print(temp.shape)
-    output_pred = np.zeros((len(seq), len(seq)))
-    for i in temp[:,0]:
-        a = i.split(' ')
-        #print(a)
-        output_pred[int(a[0]) - 1, int(a[1]) - 1] = float(a[2])**2
-    #print(output_pred)
-    return output_pred
+def RNAfold_bp_prob(id, seq, trunc):
+
+	if trunc==True:
+		with open('RNAfold_prob_1_79/' + str(id) + '.prob') as f:
+			temp = pd.read_csv(f, comment='#', header=None).values
+	elif trunc==False:
+		with open('RNAfold_prob/' + str(id) + '.prob') as f:
+			temp = pd.read_csv(f, comment='#', header=None).values
+
+	output_pred = np.zeros((len(seq), len(seq)))
+	for i in temp[:,0]:
+		a = i.split(' ')
+		#print(a)
+		output_pred[int(a[0]) - 1, int(a[1]) - 1] = float(a[2])**2
+	#print(output_pred)
+	return output_pred
 
 all_pred_prob = []
 all_true_react = []
@@ -58,10 +63,17 @@ for id in ids[0:]:
 
 
 ########### read either SPOT-RNA or RNAfold probabilites #######################
-	if args.predictor == 'RNAfold':
-		y_pred = RNAfold_bp_prob(id, seq)                                      # load RNAfold bps probabilties   107 x 107  2D array
+	if args.truncation == 1:
+		if args.predictor == 'RNAfold':
+			y_pred = RNAfold_bp_prob(id, seq, trunc=True)                                      # load RNAfold bps probabilties   107 x 107  2D array
+		else:
+			y_pred = np.loadtxt('SPOT-RNA_prob_1_79/' + id + '.prob', delimiter='\t')    # load SPOT-RNA bps probabilties  107 x 107  2D array
+
 	else:
-		y_pred = np.loadtxt('SPOT-RNA_prob/' + id + '.prob', delimiter='\t')    # load SPOT-RNA bps probabilties  107 x 107  2D array
+		if args.predictor == 'RNAfold':
+			y_pred = RNAfold_bp_prob(id, seq, trunc=False)                                      # load RNAfold bps probabilties   79 x 79  2D array
+		else:
+			y_pred = np.loadtxt('SPOT-RNA_prob/' + id + '.prob', delimiter='\t')    # load SPOT-RNA bps probabilties  79 x 79  2D array
 
 
 	prob = np.sum(y_pred[0:79,0:79] + np.transpose(y_pred[0:79,0:79]), axis=0)  # convert upper triangular matrix to symmetric metric of size 79 x 79 and sum across one axis
