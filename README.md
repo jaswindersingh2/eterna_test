@@ -11,6 +11,8 @@ Overview:
 
 Results:
 ----
+Need to install numpy, pandas, argparse, and scipy using either pip or conda.
+ 
 ```
 $ python3 corr.py  --predictor SPOT-RNA
 

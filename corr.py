@@ -1,6 +1,5 @@
 import numpy as np
 import pandas as pd
-import pickle as pkl
 import argparse
 from scipy import stats
 
@@ -83,7 +82,7 @@ for id in ids[0:]:
 	all_true_react.append(reactivity)
 
 #########  calculate pcc of individual rna  ################
-	pcc = np.corrcoef(np.stack((np.array(npair_prob), np.array(reactivity)), axis=0))[0][1]
+	pcc = np.ma.corrcoef(np.stack((np.array(npair_prob), np.array(reactivity)), axis=0))[0][1]
 	save_pcc.append(pcc)
 	
 
@@ -94,7 +93,7 @@ all_reactivities = np.concatenate([i for i in all_true_react])
 #print(thres_remove_above_95)
 
 ###### single pcc value ###########
-pcc_all = np.corrcoef(np.stack((np.array(all_probabilities), np.array(all_reactivities)), axis=0))[0][1]
+pcc_all = np.ma.corrcoef(np.stack((np.array(all_probabilities), np.array(all_reactivities)), axis=0))[0][1]
 scc_all = stats.spearmanr(all_probabilities, all_reactivities)
 
 print('\n'+args.predictor)
