@@ -26,8 +26,8 @@ mean Spearman Correlation Coefficent = 0.532
 $ python3 corr.py  --predictor RNAfold
 
 RNAfold
-mean Pearson Correlation Coefficent = 0.648
-mean Spearman Correlation Coefficent = 0.478
+mean Pearson Correlation Coefficent = 0.672
+mean Spearman Correlation Coefficent = 0.667
 
 ```
 Contact

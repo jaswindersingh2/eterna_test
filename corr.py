@@ -63,7 +63,7 @@ for id in ids[0:]:
 	else:
 		y_pred = np.loadtxt('SPOT-RNA_prob/' + id + '.prob', delimiter='\t')    # load SPOT-RNA bps probabilties  107 x 107  2D array
 
-	prob = np.clip(np.sum(y_pred + np.transpose(y_pred), axis=0), 0, 1)  # convert upper triangular matrix to symmetric metric of size 107 x 107 and sum across one axis. Also clip b/w 0 and 1.
+	prob = np.sum(y_pred + np.transpose(y_pred), axis=0)  # convert upper triangular matrix to symmetric metric of size 107 x 107 and sum across one axis.
 	npair_prob = [1-i for i in prob[0:79]]         # convert pair probability to non-pair probability (1 x 79) list
 
 
