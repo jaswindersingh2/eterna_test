@@ -17,8 +17,8 @@ Need to install numpy, pandas, argparse, and scipy using either pip or conda.
 $ python3 corr.py  --predictor SPOT-RNA
 
 SPOT-RNA
-mean Pearson Correlation Coefficent = 0.554
-mean Spearman Correlation Coefficent = 0.532
+mean Pearson Correlation Coefficent = 0.548
+mean Spearman Correlation Coefficent = 0.518
 
 ```
 

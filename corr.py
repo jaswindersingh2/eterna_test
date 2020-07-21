@@ -83,7 +83,7 @@ for id in ids[0:]:
 
 
 print('\n'+args.predictor)
-print('mean Pearson Correlation Coefficent = {:.3f}'.format(np.nanmean(save_pcc)))   # print mean pcc by ignoring nan values
-print('mean Spearman Correlation Coefficent = {:.3f}'.format(np.nanmean(save_scc)))  # print mean scc by ignoring nan values
+print('mean Pearson Correlation Coefficent = {:.2f}'.format(np.nanmean(save_pcc)))   # print mean pcc by ignoring nan values
+print('mean Spearman Correlation Coefficent = {:.2f}'.format(np.nanmean(save_scc)))  # print mean scc by ignoring nan values
 print()
 
