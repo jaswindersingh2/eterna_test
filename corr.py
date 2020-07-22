@@ -68,10 +68,7 @@ for id in ids[0:]:
 
 
 ########## ignore index of reactivity values less than 1e-5 and above 95% ###############
-	ignore_index = []
-	for i,I in enumerate(reactivity):
-		if I < 0.00001 or I > thres_remove_above_95:
-			ignore_index.append(i)
+	ignore_index = [i for i,I in enumerate(reactivity) if I < 0.00001 or I > thres_remove_above_95]
 	npair_prob = [I for i,I in enumerate(npair_prob) if i not in ignore_index]
 	reactivity = [I for i,I in enumerate(reactivity) if i not in ignore_index]
 
